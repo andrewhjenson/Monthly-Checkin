@@ -1,9 +1,37 @@
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L4KTZKSJMN"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Redirecting...</title>
 
-  gtag('config', 'G-L4KTZKSJMN');
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+</head>
+<body>
+<script>
+  // Get target URL from query parameter
+  const params = new URLSearchParams(window.location.search);
+  const target = params.get("to");
+
+  if (target) {
+    // Log custom event
+    gtag('event', 'tracked_link_click', {
+      destination: target
+    });
+
+    // Small delay so GA records before redirect
+    setTimeout(() => {
+      window.location.href = target;
+    }, 300);
+  } else {
+    document.body.innerText = "No destination specified.";
+  }
 </script>
+</body>
+</html>
