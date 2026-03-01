@@ -16,14 +16,10 @@
       --ok:#34d399;
       --border: rgba(148,163,184,.25);
 
-      /* Cinematic state tints */
-      --tintA: rgba(56,189,248,.18);  /* blue */
-      --tintB: rgba(167,139,250,.16); /* violet */
-      --tintC: rgba(244,114,182,.10); /* pink */
+      /* cinematic tint boosts */
       --stateBlueBoost: 0;
       --stateVioletBoost: 0;
     }
-
     *{box-sizing:border-box}
     body{
       margin:0;
@@ -199,7 +195,7 @@
       border-color: rgba(148,163,184,.22);
     }
 
-    /* dodging nope button */
+    /* dodging nope button (starts in the box) */
     .nopeWrap{
       margin-top: 8px;
       position:relative;
@@ -324,7 +320,7 @@
       background: rgba(2,6,23,.25);
       box-shadow: 0 0 0 1px rgba(56,189,248,.10) inset;
       user-select:none;
-      transition: border-color .35s ease, color .35s ease, box-shadow .35s ease, filter .35s ease;
+      transition: border-color .35s ease, color .35s ease, box-shadow .35s ease;
     }
     .stamp.active{
       border-color: rgba(56,189,248,.55);
@@ -345,7 +341,7 @@
       font-size: 12px;
     }
 
-    /* ===== Cinematic overlays ===== */
+    /* ===== Cinematic layers ===== */
     .overlay{
       position: fixed;
       inset: 0;
@@ -434,9 +430,7 @@
     }
 
     /* shake */
-    .shake{
-      animation: shake .32s ease-in-out 1;
-    }
+    .shake{ animation: shake .32s ease-in-out 1; }
     @keyframes shake{
       0%{ transform: translate(0,0); }
       20%{ transform: translate(-1px, 1px); }
@@ -445,17 +439,6 @@
       80%{ transform: translate(1px, 1px); }
       100%{ transform: translate(0,0); }
     }
-
-    /* action glow on button press */
-    .btnGlow{
-      position: absolute;
-      inset: -120px;
-      background: radial-gradient(260px 180px at var(--gx, 50%) var(--gy, 50%), rgba(56,189,248,.22), transparent 60%);
-      opacity: 0;
-      pointer-events:none;
-      transition: opacity .18s ease;
-    }
-    button:active .btnGlow{ opacity: 1; }
 
     /* state adjustments */
     body.state-active .grid{ opacity: .42; }
@@ -489,14 +472,8 @@
       <div class="hr"></div>
 
       <div class="btnRow">
-        <button class="primary" id="btnProceed">
-          <span class="btnGlow"></span>
-          Call me tonight
-        </button>
-        <button class="secondary" id="btnResched">
-          <span class="btnGlow"></span>
-          I still need more time
-        </button>
+        <button class="primary" id="btnProceed">Call me tonight</button>
+        <button class="secondary" id="btnResched">I still need more time</button>
       </div>
 
       <div class="nopeWrap" aria-label="Nope button area">
@@ -511,10 +488,7 @@
         <input type="range" id="rangeDays" min="1" max="45" value="30" />
         <div class="tiny">System cap: 45 days.</div>
         <div class="btnRow" style="margin-top:12px;">
-          <button class="primary" id="btnConfirm">
-            <span class="btnGlow"></span>
-            Confirm
-          </button>
+          <button class="primary" id="btnConfirm">Confirm</button>
         </div>
       </div>
 
@@ -581,9 +555,6 @@
     make(55,40,'');
   })();
 
-  /***********************
-   * Elements
-   ***********************/
   const btnProceed = document.getElementById('btnProceed');
   const btnResched = document.getElementById('btnResched');
   const btnNope = document.getElementById('btnNope');
@@ -639,7 +610,7 @@
   }
 
   /***********************
-   * Cinematic FX helpers
+   * Cinematic helpers
    ***********************/
   function pulseFlash(){
     flash.classList.remove('pulse');
@@ -658,7 +629,6 @@
   }
 
   function setState(mode){
-    // mode: "idle" | "active" | "standby"
     document.body.classList.remove('state-active','state-standby');
     stamp.classList.remove('active','standby');
 
@@ -666,14 +636,12 @@
       document.body.classList.add('state-active');
       stamp.classList.add('active');
       stamp.textContent = 'ACTIVE';
-      // boost blue tint, reduce violet
       document.documentElement.style.setProperty('--stateBlueBoost', '0.10');
       document.documentElement.style.setProperty('--stateVioletBoost', '0.00');
     } else if (mode === 'standby'){
       document.body.classList.add('state-standby');
       stamp.classList.add('standby');
       stamp.textContent = 'STANDBY';
-      // boost violet tint
       document.documentElement.style.setProperty('--stateBlueBoost', '0.03');
       document.documentElement.style.setProperty('--stateVioletBoost', '0.10');
     } else {
@@ -695,14 +663,23 @@
     overlay.setAttribute('aria-hidden','true');
   }
 
+  function formatLocalDateTime(d){
+    // "Apr 2, 2026 at 8:17 PM"
+    return d.toLocaleString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit'
+    });
+  }
+
   /***********************
    * Optional sound (WebAudio) — only after user gesture
    ***********************/
   let audioCtx = null;
   function ensureAudio(){
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
   function beep(freq=440, dur=0.08, gain=0.04){
     if (!audioCtx) return;
@@ -711,27 +688,18 @@
     o.type = 'sine';
     o.frequency.value = freq;
     g.gain.value = gain;
-    o.connect(g);
-    g.connect(audioCtx.destination);
+    o.connect(g); g.connect(audioCtx.destination);
     o.start();
     o.stop(audioCtx.currentTime + dur);
   }
-  function thump(){
-    // quick low beep
-    beep(110, 0.10, 0.05);
-  }
-  function clicky(){
-    beep(880, 0.03, 0.02);
-  }
 
   /***********************
-   * Nope button — default visible, then roam on interaction
+   * Nope button — default visible, then roam whole screen on interaction
    ***********************/
   let roaming = false;
   function dodgeWholeScreen(){
     const padding = 14;
 
-    // first dodge: convert to fixed at current location
     if (!roaming) {
       const r = btnNope.getBoundingClientRect();
       btnNope.classList.add('roam');
@@ -750,7 +718,6 @@
     btnNope.style.left = x + 'px';
     btnNope.style.top  = y + 'px';
   }
-
   btnNope.addEventListener('mouseenter', dodgeWholeScreen);
   btnNope.addEventListener('mousemove', dodgeWholeScreen);
   btnNope.addEventListener('click', (e)=>{ e.preventDefault(); dodgeWholeScreen(); });
@@ -762,12 +729,10 @@
    ***********************/
   rangeDays.addEventListener('input', () => {
     chipDays.textContent = `${rangeDays.value} day${rangeDays.value === '1' ? '' : 's'}`;
-    // tiny tactile click if sound is enabled
-    clicky();
   });
 
   btnResched.addEventListener('click', () => {
-    ensureAudio(); // user gesture -> unlock audio if allowed
+    ensureAudio();
     reschedBox.classList.toggle('hidden');
     showTerminal();
     addLine('> RESCHEDULE MODULE: LOADED', 'ok');
@@ -776,56 +741,36 @@
     shakePanel();
   });
 
-  function formatLocalDateTime(d){
-    // "Apr 2 — 8:17 PM"
-    const mo = d.toLocaleString(undefined, { month: 'short' });
-    const day = d.getDate();
-    const time = d.toLocaleString(undefined, { hour: 'numeric', minute: '2-digit' });
-    return `${mo} ${day} — ${time}`;
-  }
-
   btnConfirm.addEventListener('click', async () => {
-  ensureAudio();
+    ensureAudio();
 
-  const days = parseInt(rangeDays.value, 10);
+    const days = parseInt(rangeDays.value, 10);
 
-  // Compute the actual check-in date/time
-  const when = new Date();
-  when.setDate(when.getDate() + days);
+    // Confirmation popup with exact date/time
+    const when = new Date();
+    when.setDate(when.getDate() + days);
 
-  const fullDateTime = when.toLocaleString(undefined, {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit"
-  });
+    const fullDateTime = when.toLocaleString(undefined, {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit"
+    });
 
-  const ok = window.confirm(
-    `Confirm reschedule?\n\nNext check-in: ${fullDateTime}\n\n(Selected: ${days} day${days === 1 ? "" : "s"})`
-  );
+    const ok = window.confirm(
+      `Confirm reschedule?\n\nNext check-in: ${fullDateTime}\n\n(Selected: ${days} day${days === 1 ? "" : "s"})`
+    );
+    if (!ok) return;
 
-  if (!ok) return;
+    // notify only after she confirms
+    notifyMe(`She pressed: "I still need more time" — slider set to ${days} day(s)`);
 
-  // notify with slider value (only after she confirms)
-  notifyMe(`She pressed: "I still need more time" — slider set to ${days} day(s)`);
-
-  // cinematic standby shift
-  setState('standby');
-  pulseFlash();
-  shakePanel();
-  thump();
-
-  showTerminal();
-  addLine('> Delay request received.', 'warn');
-  ...
-
-    // cinematic standby shift
     setState('standby');
     pulseFlash();
     shakePanel();
-    thump();
+    beep(160, 0.10, 0.05);
 
     showTerminal();
     addLine('> Delay request received.', 'warn');
@@ -849,12 +794,13 @@
       addLine('> Constraint check: PASS (≤ 45 days)', 'ok');
       await sleep(420);
 
-     // timeline projection overlay
-showOverlay('NEXT CHECK-IN SCHEDULED', '✓', formatLocalDateTime(when));
-fireStreak();
-pulseFlash();
-await sleep(900);
-hideOverlay();
+      // overlay uses the SAME "when" as the popup
+      showOverlay('NEXT CHECK-IN SCHEDULED', '✓', formatLocalDateTime(when));
+      fireStreak();
+      pulseFlash();
+      beep(520, 0.08, 0.05);
+      await sleep(900);
+      hideOverlay();
 
       addLine('> TIMELINE CONFIRMED.', 'ok');
       popConfetti();
@@ -871,23 +817,20 @@ hideOverlay();
   });
 
   /***********************
-   * Call / Proceed — cinematic countdown + handshake
+   * Call protocol (cinematic)
    ***********************/
   btnProceed.addEventListener('click', async () => {
     ensureAudio();
 
-    // notify
     notifyMe('She pressed: "Call me tonight"');
 
-    // lock buttons for drama
     btnProceed.disabled = true;
     btnResched.disabled = true;
 
-    // Active state shift
     setState('active');
     pulseFlash();
     shakePanel();
-    thump();
+    beep(110, 0.10, 0.05);
 
     showTerminal();
     addLine('> INITIATING CONNECTION PROTOCOL…');
@@ -895,7 +838,6 @@ hideOverlay();
     addLine('> Authenticating…', '');
     await sleep(420);
 
-    // countdown overlay
     showOverlay('CONNECTION PROTOCOL', 3, 'Authenticating…');
     beep(440, 0.08, 0.05);
     pulseFlash();
@@ -913,7 +855,6 @@ hideOverlay();
 
     hideOverlay();
 
-    // handshake streak
     fireStreak();
     pulseFlash();
     await sleep(240);
@@ -929,9 +870,6 @@ hideOverlay();
     addLine('> Connection approved. Standing by.', 'ok');
 
     popConfetti();
-
-    // allow resched again if you want (or keep locked)
-    // btnResched.disabled = false;
   });
 
   function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
