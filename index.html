@@ -1,344 +1,544 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>One month has passed…</title>
+  <title>Monthly Check-In Protocol</title>
   <style>
     :root{
-      --bg1:#0b1020;
-      --bg2:#1a1030;
-      --card: rgba(255,255,255,0.08);
-      --card2: rgba(255,255,255,0.12);
-      --text: rgba(255,255,255,0.92);
-      --muted: rgba(255,255,255,0.70);
-      --border: rgba(255,255,255,0.16);
-      --shadow: 0 12px 40px rgba(0,0,0,0.35);
-      --radius: 18px;
+      --bg:#070a12;
+      --panel: rgba(15, 23, 42, 0.68);
+      --text:#e2e8f0;
+      --muted: rgba(226,232,240,.7);
+      --accent:#38bdf8;
+      --accent2:#a78bfa;
+      --danger:#fb7185;
+      --ok:#34d399;
+      --border: rgba(148,163,184,.25);
     }
-
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
+    *{box-sizing:border-box}
     body{
       margin:0;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,system-ui,sans-serif;
       color:var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
       background:
-        radial-gradient(1200px 800px at 20% 10%, #2c2a7a 0%, transparent 60%),
-        radial-gradient(900px 700px at 80% 30%, #7a2a6c 0%, transparent 55%),
-        linear-gradient(135deg, var(--bg1), var(--bg2));
-      overflow-x:hidden;
+        radial-gradient(1200px 700px at 15% 20%, rgba(56,189,248,.18), transparent 60%),
+        radial-gradient(900px 600px at 85% 35%, rgba(167,139,250,.16), transparent 55%),
+        radial-gradient(700px 500px at 55% 85%, rgba(244,114,182,.10), transparent 60%),
+        linear-gradient(180deg, #050714, #070a12 55%, #05060c);
+      overflow:hidden;
+    }
+
+    /* animated "grid" */
+    .grid {
+      position:fixed; inset:-40px;
+      background-image:
+        linear-gradient(to right, rgba(148,163,184,.08) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(148,163,184,.08) 1px, transparent 1px);
+      background-size: 70px 70px;
+      transform: perspective(900px) rotateX(55deg) translateY(120px);
+      filter: blur(.2px);
+      opacity:.35;
+      animation: drift 12s linear infinite;
+      pointer-events:none;
+    }
+    @keyframes drift{
+      from{background-position:0 0}
+      to{background-position:0 280px}
+    }
+
+    /* scanlines */
+    .scanlines{
+      position:fixed; inset:0;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,.04),
+        rgba(255,255,255,.04) 1px,
+        transparent 2px,
+        transparent 6px
+      );
+      mix-blend-mode:overlay;
+      opacity:.25;
+      pointer-events:none;
+      animation: flicker 5s infinite;
+    }
+    @keyframes flicker{
+      0%, 100% { opacity:.22 }
+      50% { opacity:.28 }
+    }
+
+    /* floating dots */
+    .dots{
+      position:fixed; inset:0;
+      pointer-events:none;
+    }
+    .dot{
+      position:absolute;
+      width:6px; height:6px; border-radius:50%;
+      background: rgba(56,189,248,.9);
+      box-shadow: 0 0 14px rgba(56,189,248,.55);
+      opacity:.7;
+      animation: floaty 10s ease-in-out infinite;
+    }
+    .dot.purple{
+      background: rgba(167,139,250,.9);
+      box-shadow: 0 0 14px rgba(167,139,250,.55);
+    }
+    @keyframes floaty{
+      0%,100% { transform: translate(0,0) }
+      50% { transform: translate(20px,-30px) }
     }
 
     .wrap{
-      min-height:100%;
-      display:grid;
-      place-items:center;
-      padding:28px 16px;
-    }
-
-    .card{
-      width:min(760px, 94vw);
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:26px;
-      backdrop-filter: blur(10px);
-    }
-
-    .title{
-      font-size:34px;
-      line-height:1.12;
-      margin:0 0 10px;
-      letter-spacing:-0.02em;
-    }
-
-    .subtitle{
-      margin:0 0 18px;
-      color:var(--muted);
-      font-size:16px;
-      line-height:1.55;
-      max-width: 62ch;
+      width:min(520px, 92vw);
+      position:relative;
+      z-index:2;
     }
 
     .panel{
-      margin-top:18px;
-      padding:16px;
-      border-radius:16px;
-      border:1px solid var(--border);
-      background:rgba(255,255,255,0.06);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px 18px 18px;
+      backdrop-filter: blur(14px);
+      box-shadow:
+        0 10px 30px rgba(0,0,0,.40),
+        0 0 0 1px rgba(56,189,248,.07) inset;
+      overflow:hidden;
+      position:relative;
     }
 
-    .label{
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      font-size:12px;
+      letter-spacing:.22em;
+      text-transform:uppercase;
+      color: rgba(226,232,240,.85);
+      padding: 8px 10px;
+      border: 1px solid rgba(148,163,184,.22);
+      border-radius: 999px;
+      background: rgba(2,6,23,.45);
+    }
+    .pulse{
+      width:10px; height:10px; border-radius:50%;
+      background: var(--ok);
+      box-shadow: 0 0 0 0 rgba(52,211,153,.5);
+      animation: pulse 1.6s infinite;
+    }
+    @keyframes pulse{
+      0% { box-shadow: 0 0 0 0 rgba(52,211,153,.5) }
+      70% { box-shadow: 0 0 0 10px rgba(52,211,153,0) }
+      100% { box-shadow: 0 0 0 0 rgba(52,211,153,0) }
+    }
+
+    h1{
+      margin:14px 0 4px;
+      font-size:26px;
+      letter-spacing:.02em;
+    }
+    .sub{
+      margin:0 0 16px;
+      color: var(--muted);
       font-size:14px;
-      color:var(--muted);
-      margin:0 0 10px;
       line-height:1.4;
     }
 
-    .bigline{
-      font-size:18px;
-      margin:0 0 12px;
-      line-height:1.45;
+    .hr{
+      height:1px;
+      background: linear-gradient(90deg, transparent, rgba(56,189,248,.35), transparent);
+      margin: 14px 0 14px;
+      opacity:.9;
     }
 
-    .slider-row{
-      display:grid;
-      grid-template-columns: 1fr 128px;
-      gap:12px;
+    .btnRow{display:grid; gap:10px; margin-top:6px;}
+    button{
+      width:100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(148,163,184,.22);
+      background: rgba(2,6,23,.30);
+      color: var(--text);
+      font-size:14px;
+      cursor:pointer;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+      position:relative;
+      overflow:hidden;
+    }
+    button:hover{
+      transform: translateY(-1px);
+      border-color: rgba(56,189,248,.45);
+      background: rgba(2,6,23,.42);
+    }
+    .primary{
+      border-color: rgba(56,189,248,.45);
+      background: linear-gradient(135deg, rgba(56,189,248,.18), rgba(167,139,250,.10));
+    }
+    .secondary{
+      border-color: rgba(148,163,184,.22);
+    }
+
+    /* dodging nope button */
+    .nopeWrap{
+      margin-top: 8px;
+      position:relative;
+      height: 48px;
+    }
+    .nope{
+      /* CHANGED: roam the whole screen */
+      position: fixed;
+      left: 18px;
+      top: 18px;
+      width: 160px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(251,113,133,.35);
+      background: rgba(251,113,133,.10);
+      color: rgba(255,255,255,.92);
+      z-index: 9999;
+      transition: left .12s ease, top .12s ease;
+    }
+    .nope:hover{
+      border-color: rgba(251,113,133,.6);
+      background: rgba(251,113,133,.14);
+    }
+
+    .hidden{display:none !important;}
+
+    /* reschedule */
+    .reschedule{
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(148,163,184,.18);
+      background: rgba(2,6,23,.22);
+    }
+    .labelRow{
+      display:flex;
+      justify-content:space-between;
       align-items:center;
-      margin-top:10px;
+      gap:12px;
+      margin-bottom: 10px;
+      color: rgba(226,232,240,.85);
+      font-size:13px;
     }
-
+    .chip{
+      font-variant-numeric: tabular-nums;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(56,189,248,.25);
+      background: rgba(56,189,248,.10);
+      color: rgba(226,232,240,.92);
+      min-width: 82px;
+      text-align:center;
+    }
     input[type="range"]{
       width:100%;
-      accent-color:#b8a6ff;
+      accent-color: var(--accent);
     }
-
-    input[type="number"]{
-      width:128px;
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px solid var(--border);
-      background:rgba(255,255,255,0.08);
-      color:var(--text);
-      font-weight:750;
-      outline:none;
-    }
-
-    .row{
-      display:flex;
-      flex-wrap:wrap;
-      gap:12px;
-      margin-top:16px;
-      align-items:center;
-    }
-
-    button{
-      border:1px solid var(--border);
-      background:var(--card2);
-      color:var(--text);
-      padding:12px 16px;
-      border-radius:14px;
-      cursor:pointer;
-      font-weight:700;
-      letter-spacing:0.01em;
-      box-shadow:0 10px 24px rgba(0,0,0,0.25);
-      transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
-      user-select:none;
-      touch-action: manipulation;
-    }
-    button:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,0.28); }
-    button:active{ transform: translateY(0px) scale(0.99); }
-
-    .primary{ background: rgba(120,255,200,0.18); }
-    .secondary{ background: rgba(180,160,255,0.18); }
-
     .tiny{
+      margin-top:8px;
+      color: rgba(226,232,240,.55);
       font-size:12px;
-      color:var(--muted);
-      margin-top:14px;
-      line-height:1.45;
     }
 
-    /* Nope button roams the whole screen */
-    #nopeBtn{
-      position:fixed;
-      left:40px;
-      top:80px;
-      z-index:9999;
-      transition:left 120ms ease, top 120ms ease;
-      background: rgba(255,120,120,0.14);
-    }
-
-    .done {
+    /* terminal output */
+    .terminal{
       margin-top: 14px;
-      padding: 12px 14px;
       border-radius: 14px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.06);
-      color: var(--muted);
-      display: none;
-      line-height: 1.45;
+      border: 1px solid rgba(148,163,184,.16);
+      background: rgba(2,6,23,.55);
+      padding: 12px 12px 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      color: rgba(226,232,240,.92);
+      max-height: 200px;
+      overflow:auto;
+      box-shadow: 0 0 0 1px rgba(56,189,248,.06) inset;
     }
-    .done strong { color: var(--text); }
+    .line { opacity:.95 }
+    .ok { color: rgba(52,211,153,.95) }
+    .warn { color: rgba(251,191,36,.95) }
+    .err { color: rgba(251,113,133,.95) }
 
-    .sparkle{
-      display:inline-block;
-      filter: drop-shadow(0 8px 18px rgba(0,0,0,0.45));
-      animation: floaty 2.4s ease-in-out infinite;
+    /* confetti */
+    .confetti{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index: 9;
+      overflow:hidden;
     }
-    @keyframes floaty{
-      0%,100%{ transform: translateY(0); }
-      50%{ transform: translateY(-3px); }
+    .piece{
+      position:absolute;
+      width:10px; height:14px;
+      opacity:.9;
+      transform: rotate(0deg);
+      animation: fall 1.35s linear forwards;
+    }
+    @keyframes fall{
+      to{
+        transform: translateY(110vh) rotate(420deg);
+        opacity: 0.9;
+      }
+    }
+
+    /* stamp */
+    .stamp{
+      position:absolute;
+      right:-40px;
+      top:18px;
+      transform: rotate(18deg);
+      border: 2px solid rgba(56,189,248,.35);
+      color: rgba(56,189,248,.7);
+      padding: 10px 22px;
+      border-radius: 12px;
+      font-weight: 700;
+      letter-spacing:.18em;
+      text-transform: uppercase;
+      background: rgba(2,6,23,.25);
+      box-shadow: 0 0 0 1px rgba(56,189,248,.10) inset;
+      user-select:none;
+    }
+
+    /* footer hint */
+    .foot{
+      margin-top: 10px;
+      text-align:center;
+      color: rgba(226,232,240,.45);
+      font-size: 12px;
     }
   </style>
 </head>
 <body>
+  <div class="grid"></div>
+  <div class="scanlines"></div>
+
+  <div class="dots" id="dots"></div>
+
   <div class="wrap">
-    <div class="card">
-      <h1 class="title"><span class="sparkle">✨</span> One month has passed…</h1>
+    <div class="panel">
+      <div class="stamp">Protocol</div>
 
-      <p class="subtitle">
-        I kept my word and gave you space.
-        <br/>
-        If you’re ready, I’d like to talk tonight.
-        If you still need time, tell me how long — and I’ll honor it.
-      </p>
+      <div class="badge">
+        <span class="pulse"></span>
+        <span>CHECK-IN SYSTEM ONLINE</span>
+      </div>
 
-      <div class="panel">
-        <p class="label">If you need more time:</p>
-        <p class="bigline">
-          Check back in in <strong><span id="daysLabel">30</span></strong> days.
-          <span style="color: var(--muted)">(max 45)</span>
-        </p>
+      <h1>Monthly Check-In</h1>
+      <p class="sub">One month has passed. As promised, checking in.</p>
 
-        <div class="slider-row">
-          <input id="daysSlider" type="range" min="1" max="45" value="30"/>
-          <input id="daysInput" type="number" min="1" max="45" value="30"/>
+      <div class="hr"></div>
+
+      <div class="btnRow">
+        <!-- CHANGED TEXT -->
+        <button class="primary" id="btnProceed">Call me tonight</button>
+        <!-- CHANGED TEXT -->
+        <button class="secondary" id="btnResched">I still need more time</button>
+      </div>
+
+      <div class="nopeWrap" aria-label="Nope button area">
+        <button class="nope" id="btnNope">Nope</button>
+      </div>
+
+      <div class="reschedule hidden" id="reschedBox">
+        <div class="labelRow">
+          <div>Select new check-in window (max 45 days)</div>
+          <div class="chip" id="chipDays">30 days</div>
+        </div>
+        <input type="range" id="rangeDays" min="1" max="45" value="30" />
+        <div class="tiny">System cap: 45 days.</div>
+        <div class="btnRow" style="margin-top:12px;">
+          <button class="primary" id="btnConfirm">Confirm</button>
         </div>
       </div>
 
-      <div class="row">
-        <button id="callBtn" class="primary">Call me tonight</button>
-        <button id="moreTimeBtn" class="secondary">I still need more time</button>
-      </div>
+      <div class="terminal hidden" id="terminal"></div>
 
-      <div id="doneBox" class="done"></div>
-
-      <p class="tiny">
-        (There’s also a “Nope” button somewhere… it’s not cooperative.)
-      </p>
+      <div class="foot">This system is mildly unnecessary.</div>
     </div>
   </div>
 
-  <button id="nopeBtn">Nope</button>
+  <div class="confetti" id="confetti"></div>
 
-  <script>
-    /***********************
-     * CONFIG: NTFY
-     ***********************/
-    const NTFY_TOPIC = "c47fa29e91b-alx";
-    const NTFY_URL = `https://ntfy.sh/${NTFY_TOPIC}`;
+<script>
+  /***********************
+   * NTFY CONFIG (ADDED)
+   ***********************/
+  const NTFY_TOPIC = "c47fa29e91b-alx";
+  const NTFY_URL = `https://ntfy.sh/${NTFY_TOPIC}`;
 
-    async function notifyMe(message) {
-      try {
-        await fetch(NTFY_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "text/plain",
-            "Title": "Alexis Page Update",
-            "Priority": "4"
-          },
-          body: message
-        });
-      } catch (err) {
-        console.error("Notification failed:", err);
-      }
+  async function notifyMe(message) {
+    try {
+      await fetch(NTFY_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain",
+          "Title": "Monthly Check-In",
+          "Priority": "4"
+        },
+        body: message
+      });
+    } catch (err) {
+      console.error("Notification failed:", err);
     }
+  }
 
-    /***********************
-     * ELEMENTS
-     ***********************/
-    const callBtn = document.getElementById("callBtn");
-    const moreTimeBtn = document.getElementById("moreTimeBtn");
-    const nopeBtn = document.getElementById("nopeBtn");
+  // Floating dots for "Marauder-map-ish" motion without needing a full map
+  (function initDots(){
+    const dotsEl = document.getElementById('dots');
+    const make = (x,y,cls)=> {
+      const d = document.createElement('div');
+      d.className = 'dot ' + (cls||'');
+      d.style.left = x + '%';
+      d.style.top = y + '%';
+      d.style.animationDelay = (Math.random()*2) + 's';
+      d.style.animationDuration = (8 + Math.random()*6) + 's';
+      dotsEl.appendChild(d);
+    };
+    make(12,18,'');
+    make(26,70,'purple');
+    make(78,24,'');
+    make(84,78,'purple');
+    make(55,40,'');
+  })();
 
-    const daysSlider = document.getElementById("daysSlider");
-    const daysInput = document.getElementById("daysInput");
-    const daysLabel = document.getElementById("daysLabel");
+  const btnProceed = document.getElementById('btnProceed');
+  const btnResched = document.getElementById('btnResched');
+  const btnNope = document.getElementById('btnNope');
+  const reschedBox = document.getElementById('reschedBox');
+  const rangeDays = document.getElementById('rangeDays');
+  const chipDays = document.getElementById('chipDays');
+  const btnConfirm = document.getElementById('btnConfirm');
+  const terminal = document.getElementById('terminal');
+  const confetti = document.getElementById('confetti');
 
-    const doneBox = document.getElementById("doneBox");
+  // Terminal helpers
+  function showTerminal() {
+    terminal.classList.remove('hidden');
+    terminal.innerHTML = '';
+  }
+  function addLine(text, cls){
+    const div = document.createElement('div');
+    div.className = 'line' + (cls ? ' ' + cls : '');
+    div.textContent = text;
+    terminal.appendChild(div);
+    terminal.scrollTop = terminal.scrollHeight;
+  }
 
-    let selectedDays = Number(daysSlider.value);
-
-    function clamp(n, min, max){
-      return Math.min(max, Math.max(min, n));
+  // Confetti
+  function popConfetti(){
+    confetti.innerHTML = '';
+    const colors = ['rgba(56,189,248,.95)','rgba(167,139,250,.95)','rgba(52,211,153,.95)','rgba(251,113,133,.95)','rgba(251,191,36,.95)'];
+    for(let i=0;i<60;i++){
+      const p = document.createElement('div');
+      p.className = 'piece';
+      p.style.left = (Math.random()*100) + 'vw';
+      p.style.top = (-10 - Math.random()*30) + 'vh';
+      p.style.background = colors[Math.floor(Math.random()*colors.length)];
+      p.style.animationDelay = (Math.random()*0.15) + 's';
+      p.style.transform = `rotate(${Math.random()*180}deg)`;
+      p.style.borderRadius = (Math.random()>.5 ? '2px' : '999px');
+      confetti.appendChild(p);
     }
+    setTimeout(()=> confetti.innerHTML = '', 1700);
+  }
 
-    function setDays(n){
-      const v = clamp(Number(n || 1), 1, 45);
-      selectedDays = v;
-      daysSlider.value = String(v);
-      daysInput.value = String(v);
-      daysLabel.textContent = String(v);
+  /***********************
+   * Dodge "Nope" button (CHANGED: whole screen)
+   ***********************/
+  function dodge(){
+    const padding = 14;
+    const btn = btnNope.getBoundingClientRect();
+
+    const maxX = Math.max(padding, window.innerWidth - btn.width - padding);
+    const maxY = Math.max(padding, window.innerHeight - btn.height - padding);
+
+    const x = Math.floor(Math.random() * (maxX - padding + 1)) + padding;
+    const y = Math.floor(Math.random() * (maxY - padding + 1)) + padding;
+
+    btnNope.style.left = x + 'px';
+    btnNope.style.top  = y + 'px';
+  }
+
+  // move on hover / approach
+  btnNope.addEventListener('mouseenter', dodge);
+  btnNope.addEventListener('mousemove', dodge);
+  // and if clicked, it still runs
+  btnNope.addEventListener('click', (e)=>{ e.preventDefault(); dodge(); });
+
+  // mobile: tapping makes it jump
+  btnNope.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    dodge();
+  }, { passive: false });
+
+  window.addEventListener('resize', dodge);
+
+  // Reschedule UI
+  rangeDays.addEventListener('input', () => {
+    chipDays.textContent = `${rangeDays.value} day${rangeDays.value === '1' ? '' : 's'}`;
+  });
+
+  btnResched.addEventListener('click', () => {
+    reschedBox.classList.toggle('hidden');
+    showTerminal();
+    addLine('> RESCHEDULE MODULE: LOADED', 'ok');
+    addLine('> Awaiting input…', 'warn');
+  });
+
+  btnConfirm.addEventListener('click', async () => {
+    const days = parseInt(rangeDays.value, 10);
+
+    // ADDED: notify with slider value
+    notifyMe(`She pressed: "I still need more time" — slider set to ${days} day(s)`);
+
+    showTerminal();
+    addLine('> SUBMITTING REQUEST…');
+    await sleep(420);
+    addLine(`> Requested check-in window: ${days} day(s)`, 'warn');
+    await sleep(420);
+    addLine('> Validating constraints…', '');
+    await sleep(420);
+
+    if (days >= 1 && days <= 45) {
+      addLine('> Constraint check: PASS (≤ 45 days)', 'ok');
+      await sleep(420);
+      addLine('> TIMELINE CONFIRMED.', 'ok');
+      popConfetti();
+      await sleep(300);
+      addLine('> System returning to standby.', '');
+    } else {
+      addLine('> Constraint check: FAIL', 'err');
+      addLine('> Please select 1–45.', 'err');
     }
+  });
 
-    function showDone(html){
-      doneBox.innerHTML = html;
-      doneBox.style.display = "block";
-    }
+  // Proceed
+  btnProceed.addEventListener('click', async () => {
+    // ADDED: notify on call request
+    notifyMe('She pressed: "Call me tonight"');
 
-    /***********************
-     * NOPE MOVEMENT (whole screen)
-     ***********************/
-    function randomNopePosition(){
-      const padding = 14;
-      const btnW = nopeBtn.offsetWidth || 120;
-      const btnH = nopeBtn.offsetHeight || 44;
+    showTerminal();
+    addLine('> INITIATING CALL PROTOCOL…');
+    await sleep(420);
+    addLine('> Opening secure channel…', '');
+    await sleep(600);
+    addLine('> Verifying handshake…', '');
+    await sleep(700);
+    addLine('> Call approved. Standing by.', 'ok');
+    popConfetti();
+  });
 
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
+  function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
 
-      const maxX = Math.max(padding, vw - btnW - padding);
-      const maxY = Math.max(padding, vh - btnH - padding);
-
-      const x = Math.floor(Math.random() * (maxX - padding + 1)) + padding;
-      const y = Math.floor(Math.random() * (maxY - padding + 1)) + padding;
-
-      return { x, y };
-    }
-
-    function moveNope(){
-      const {x,y} = randomNopePosition();
-      nopeBtn.style.left = `${x}px`;
-      nopeBtn.style.top = `${y}px`;
-    }
-
-    /***********************
-     * EVENTS
-     ***********************/
-    // Sync slider + number input
-    daysSlider.addEventListener("input", (e) => setDays(e.target.value));
-    daysInput.addEventListener("input", (e) => setDays(e.target.value));
-
-    // Buttons
-    callBtn.addEventListener("click", () => {
-      notifyMe('She pressed: "Call me tonight"');
-      callBtn.disabled = true;
-      moreTimeBtn.disabled = true;
-
-      showDone(`<strong>Received.</strong> “Call me tonight.”`);
-      callBtn.textContent = "Got it ❤️";
-    });
-
-    moreTimeBtn.addEventListener("click", () => {
-      notifyMe(`She pressed: "I still need more time" — slider set to ${selectedDays} days`);
-      callBtn.disabled = true;
-      moreTimeBtn.disabled = true;
-
-      showDone(`<strong>Received.</strong> “I still need more time.”<br/>Check back in: <strong>${selectedDays} days</strong>.`);
-      moreTimeBtn.textContent = `Okay — ${selectedDays} days`;
-    });
-
-    // Nope runs away
-    nopeBtn.addEventListener("mouseenter", moveNope);
-    nopeBtn.addEventListener("mousemove", moveNope);
-    nopeBtn.addEventListener("click", (e) => { e.preventDefault(); moveNope(); });
-
-    // Mobile
-    nopeBtn.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-      moveNope();
-    }, { passive:false });
-
-    window.addEventListener("load", () => {
-      setDays(selectedDays);
-      moveNope();
-    });
-
-    window.addEventListener("resize", moveNope);
-  </script>
+  // Put "Nope" somewhere not boring at first load
+  dodge();
+</script>
 </body>
 </html>
