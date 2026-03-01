@@ -15,7 +15,15 @@
       --danger:#fb7185;
       --ok:#34d399;
       --border: rgba(148,163,184,.25);
+
+      /* Cinematic state tints */
+      --tintA: rgba(56,189,248,.18);  /* blue */
+      --tintB: rgba(167,139,250,.16); /* violet */
+      --tintC: rgba(244,114,182,.10); /* pink */
+      --stateBlueBoost: 0;
+      --stateVioletBoost: 0;
     }
+
     *{box-sizing:border-box}
     body{
       margin:0;
@@ -25,11 +33,12 @@
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,system-ui,sans-serif;
       color:var(--text);
       background:
-        radial-gradient(1200px 700px at 15% 20%, rgba(56,189,248,.18), transparent 60%),
-        radial-gradient(900px 600px at 85% 35%, rgba(167,139,250,.16), transparent 55%),
+        radial-gradient(1200px 700px at 15% 20%, rgba(56,189,248, calc(.18 + var(--stateBlueBoost))), transparent 60%),
+        radial-gradient(900px 600px at 85% 35%, rgba(167,139,250, calc(.16 + var(--stateVioletBoost))), transparent 55%),
         radial-gradient(700px 500px at 55% 85%, rgba(244,114,182,.10), transparent 60%),
         linear-gradient(180deg, #050714, #070a12 55%, #05060c);
       overflow:hidden;
+      transition: filter .35s ease;
     }
 
     /* animated "grid" */
@@ -44,6 +53,7 @@
       opacity:.35;
       animation: drift 12s linear infinite;
       pointer-events:none;
+      transition: opacity .35s ease;
     }
     @keyframes drift{
       from{background-position:0 0}
@@ -64,6 +74,7 @@
       opacity:.25;
       pointer-events:none;
       animation: flicker 5s infinite;
+      transition: opacity .35s ease;
     }
     @keyframes flicker{
       0%, 100% { opacity:.22 }
@@ -109,6 +120,7 @@
         0 0 0 1px rgba(56,189,248,.07) inset;
       overflow:hidden;
       position:relative;
+      transform: translateZ(0);
     }
 
     .badge{
@@ -165,7 +177,7 @@
       color: var(--text);
       font-size:14px;
       cursor:pointer;
-      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease, filter .12s ease;
       position:relative;
       overflow:hidden;
     }
@@ -173,6 +185,11 @@
       transform: translateY(-1px);
       border-color: rgba(56,189,248,.45);
       background: rgba(2,6,23,.42);
+    }
+    button:disabled{
+      cursor: not-allowed;
+      opacity: .7;
+      filter: saturate(.7);
     }
     .primary{
       border-color: rgba(56,189,248,.45);
@@ -189,26 +206,25 @@
       height: 48px;
     }
     .nope{
-  position:absolute;          /* default: inside the Nope area */
-  left: 0;
-  top: 0;
-  width: 160px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(251,113,133,.35);
-  background: rgba(251,113,133,.10);
-  color: rgba(255,255,255,.92);
-}
-
-/* when it starts running, it becomes fixed + floats above everything */
-.nope.roam{
-  position: fixed;
-  z-index: 9999;
-  transition: left .12s ease, top .12s ease;
-}
+      position:absolute;
+      left: 0;
+      top: 0;
+      width: 160px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(251,113,133,.35);
+      background: rgba(251,113,133,.10);
+      color: rgba(255,255,255,.92);
+    }
     .nope:hover{
       border-color: rgba(251,113,133,.6);
       background: rgba(251,113,133,.14);
+    }
+    /* when it starts running */
+    .nope.roam{
+      position: fixed;
+      z-index: 9999;
+      transition: left .12s ease, top .12s ease;
     }
 
     .hidden{display:none !important;}
@@ -308,6 +324,17 @@
       background: rgba(2,6,23,.25);
       box-shadow: 0 0 0 1px rgba(56,189,248,.10) inset;
       user-select:none;
+      transition: border-color .35s ease, color .35s ease, box-shadow .35s ease, filter .35s ease;
+    }
+    .stamp.active{
+      border-color: rgba(56,189,248,.55);
+      color: rgba(56,189,248,.95);
+      box-shadow: 0 0 0 1px rgba(56,189,248,.18) inset, 0 0 20px rgba(56,189,248,.18);
+    }
+    .stamp.standby{
+      border-color: rgba(167,139,250,.55);
+      color: rgba(167,139,250,.92);
+      box-shadow: 0 0 0 1px rgba(167,139,250,.18) inset, 0 0 20px rgba(167,139,250,.18);
     }
 
     /* footer hint */
@@ -317,6 +344,128 @@
       color: rgba(226,232,240,.45);
       font-size: 12px;
     }
+
+    /* ===== Cinematic overlays ===== */
+    .overlay{
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: rgba(0,0,0,.62);
+      backdrop-filter: blur(6px);
+      z-index: 9998;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease;
+    }
+    .overlay.show{
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .countWrap{
+      text-align:center;
+      padding: 18px 22px;
+      border-radius: 18px;
+      border: 1px solid rgba(148,163,184,.22);
+      background: rgba(2,6,23,.55);
+      box-shadow: 0 10px 30px rgba(0,0,0,.45), 0 0 0 1px rgba(56,189,248,.06) inset;
+      min-width: min(440px, 92vw);
+    }
+    .countTitle{
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      font-size: 12px;
+      color: rgba(226,232,240,.78);
+      margin-bottom: 10px;
+    }
+    .countNum{
+      font-size: 64px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin: 0;
+      line-height: 1;
+      text-shadow: 0 0 24px rgba(56,189,248,.22);
+    }
+    .countSub{
+      margin-top: 12px;
+      font-size: 13px;
+      color: rgba(226,232,240,.65);
+    }
+
+    /* scan streak */
+    .streak{
+      position: fixed;
+      left: -20vw;
+      top: 18vh;
+      width: 140vw;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, rgba(56,189,248,.0), rgba(56,189,248,.85), rgba(56,189,248,.0), transparent);
+      filter: blur(.3px);
+      z-index: 9997;
+      opacity: 0;
+      transform: rotate(-6deg);
+      pointer-events:none;
+    }
+    .streak.fire{
+      animation: streak 720ms ease-out forwards;
+    }
+    @keyframes streak{
+      0%{ opacity: 0; transform: translateX(-20vw) rotate(-6deg); }
+      15%{ opacity: 1; }
+      100%{ opacity: 0; transform: translateX(60vw) rotate(-6deg); }
+    }
+
+    /* pulse flash */
+    .flash{
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(900px 600px at 50% 40%, rgba(56,189,248,.20), transparent 65%);
+      z-index: 9996;
+      opacity: 0;
+      pointer-events:none;
+    }
+    .flash.pulse{
+      animation: flash 420ms ease-out forwards;
+    }
+    @keyframes flash{
+      0%{ opacity: 0; }
+      35%{ opacity: 1; }
+      100%{ opacity: 0; }
+    }
+
+    /* shake */
+    .shake{
+      animation: shake .32s ease-in-out 1;
+    }
+    @keyframes shake{
+      0%{ transform: translate(0,0); }
+      20%{ transform: translate(-1px, 1px); }
+      40%{ transform: translate(1px, -1px); }
+      60%{ transform: translate(-1px, -1px); }
+      80%{ transform: translate(1px, 1px); }
+      100%{ transform: translate(0,0); }
+    }
+
+    /* action glow on button press */
+    .btnGlow{
+      position: absolute;
+      inset: -120px;
+      background: radial-gradient(260px 180px at var(--gx, 50%) var(--gy, 50%), rgba(56,189,248,.22), transparent 60%);
+      opacity: 0;
+      pointer-events:none;
+      transition: opacity .18s ease;
+    }
+    button:active .btnGlow{ opacity: 1; }
+
+    /* state adjustments */
+    body.state-active .grid{ opacity: .42; }
+    body.state-active .scanlines{ opacity: .30; }
+    body.state-active { filter: saturate(1.08) contrast(1.03); }
+
+    body.state-standby .grid{ opacity: .38; }
+    body.state-standby .scanlines{ opacity: .28; }
+    body.state-standby { filter: saturate(1.06) contrast(1.02); }
+
   </style>
 </head>
 <body>
@@ -326,8 +475,8 @@
   <div class="dots" id="dots"></div>
 
   <div class="wrap">
-    <div class="panel">
-      <div class="stamp">Protocol</div>
+    <div class="panel" id="panel">
+      <div class="stamp" id="stamp">Protocol</div>
 
       <div class="badge">
         <span class="pulse"></span>
@@ -340,10 +489,14 @@
       <div class="hr"></div>
 
       <div class="btnRow">
-        <!-- CHANGED TEXT -->
-        <button class="primary" id="btnProceed">Call me tonight</button>
-        <!-- CHANGED TEXT -->
-        <button class="secondary" id="btnResched">I still need more time</button>
+        <button class="primary" id="btnProceed">
+          <span class="btnGlow"></span>
+          Call me tonight
+        </button>
+        <button class="secondary" id="btnResched">
+          <span class="btnGlow"></span>
+          I still need more time
+        </button>
       </div>
 
       <div class="nopeWrap" aria-label="Nope button area">
@@ -358,7 +511,10 @@
         <input type="range" id="rangeDays" min="1" max="45" value="30" />
         <div class="tiny">System cap: 45 days.</div>
         <div class="btnRow" style="margin-top:12px;">
-          <button class="primary" id="btnConfirm">Confirm</button>
+          <button class="primary" id="btnConfirm">
+            <span class="btnGlow"></span>
+            Confirm
+          </button>
         </div>
       </div>
 
@@ -370,9 +526,20 @@
 
   <div class="confetti" id="confetti"></div>
 
+  <!-- Cinematic layers -->
+  <div class="flash" id="flash"></div>
+  <div class="streak" id="streak"></div>
+  <div class="overlay" id="overlay" aria-hidden="true">
+    <div class="countWrap">
+      <div class="countTitle" id="countTitle">CONNECTION PROTOCOL</div>
+      <div class="countNum" id="countNum">3</div>
+      <div class="countSub" id="countSub">Authenticating…</div>
+    </div>
+  </div>
+
 <script>
   /***********************
-   * NTFY CONFIG (ADDED)
+   * NTFY CONFIG
    ***********************/
   const NTFY_TOPIC = "c47fa29e91b-alx";
   const NTFY_URL = `https://ntfy.sh/${NTFY_TOPIC}`;
@@ -393,7 +560,9 @@
     }
   }
 
-  // Floating dots for "Marauder-map-ish" motion without needing a full map
+  /***********************
+   * Floating dots
+   ***********************/
   (function initDots(){
     const dotsEl = document.getElementById('dots');
     const make = (x,y,cls)=> {
@@ -412,6 +581,9 @@
     make(55,40,'');
   })();
 
+  /***********************
+   * Elements
+   ***********************/
   const btnProceed = document.getElementById('btnProceed');
   const btnResched = document.getElementById('btnResched');
   const btnNope = document.getElementById('btnNope');
@@ -422,7 +594,18 @@
   const terminal = document.getElementById('terminal');
   const confetti = document.getElementById('confetti');
 
-  // Terminal helpers
+  const panel = document.getElementById('panel');
+  const stamp = document.getElementById('stamp');
+  const overlay = document.getElementById('overlay');
+  const countTitle = document.getElementById('countTitle');
+  const countNum = document.getElementById('countNum');
+  const countSub = document.getElementById('countSub');
+  const streak = document.getElementById('streak');
+  const flash = document.getElementById('flash');
+
+  /***********************
+   * Terminal helpers
+   ***********************/
   function showTerminal() {
     terminal.classList.remove('hidden');
     terminal.innerHTML = '';
@@ -435,7 +618,9 @@
     terminal.scrollTop = terminal.scrollHeight;
   }
 
-  // Confetti
+  /***********************
+   * Confetti
+   ***********************/
   function popConfetti(){
     confetti.innerHTML = '';
     const colors = ['rgba(56,189,248,.95)','rgba(167,139,250,.95)','rgba(52,211,153,.95)','rgba(251,113,133,.95)','rgba(251,191,36,.95)'];
@@ -454,69 +639,178 @@
   }
 
   /***********************
-   * Dodge "Nope" button (CHANGED: whole screen)
+   * Cinematic FX helpers
    ***********************/
- let roaming = false;
-
-function dodge(){
-  const padding = 14;
-
-  // On first dodge, convert from absolute-in-box -> fixed-on-screen
-  if (!roaming) {
-    const r = btnNope.getBoundingClientRect();   // current on-screen location
-    btnNope.classList.add('roam');
-    btnNope.style.left = r.left + 'px';
-    btnNope.style.top  = r.top + 'px';
-    roaming = true;
+  function pulseFlash(){
+    flash.classList.remove('pulse');
+    void flash.offsetWidth;
+    flash.classList.add('pulse');
+  }
+  function fireStreak(){
+    streak.classList.remove('fire');
+    void streak.offsetWidth;
+    streak.classList.add('fire');
+  }
+  function shakePanel(){
+    panel.classList.remove('shake');
+    void panel.offsetWidth;
+    panel.classList.add('shake');
   }
 
-  // Now roam anywhere in the viewport
-  const btn = btnNope.getBoundingClientRect();
-  const maxX = Math.max(padding, window.innerWidth  - btn.width  - padding);
-  const maxY = Math.max(padding, window.innerHeight - btn.height - padding);
+  function setState(mode){
+    // mode: "idle" | "active" | "standby"
+    document.body.classList.remove('state-active','state-standby');
+    stamp.classList.remove('active','standby');
 
-  const x = Math.floor(Math.random() * (maxX - padding + 1)) + padding;
-  const y = Math.floor(Math.random() * (maxY - padding + 1)) + padding;
+    if (mode === 'active'){
+      document.body.classList.add('state-active');
+      stamp.classList.add('active');
+      stamp.textContent = 'ACTIVE';
+      // boost blue tint, reduce violet
+      document.documentElement.style.setProperty('--stateBlueBoost', '0.10');
+      document.documentElement.style.setProperty('--stateVioletBoost', '0.00');
+    } else if (mode === 'standby'){
+      document.body.classList.add('state-standby');
+      stamp.classList.add('standby');
+      stamp.textContent = 'STANDBY';
+      // boost violet tint
+      document.documentElement.style.setProperty('--stateBlueBoost', '0.03');
+      document.documentElement.style.setProperty('--stateVioletBoost', '0.10');
+    } else {
+      stamp.textContent = 'Protocol';
+      document.documentElement.style.setProperty('--stateBlueBoost', '0');
+      document.documentElement.style.setProperty('--stateVioletBoost', '0');
+    }
+  }
 
-  btnNope.style.left = x + 'px';
-  btnNope.style.top  = y + 'px';
-}
+  function showOverlay(title, num, sub){
+    countTitle.textContent = title;
+    countNum.textContent = String(num);
+    countSub.textContent = sub;
+    overlay.classList.add('show');
+    overlay.setAttribute('aria-hidden','false');
+  }
+  function hideOverlay(){
+    overlay.classList.remove('show');
+    overlay.setAttribute('aria-hidden','true');
+  }
 
-  // move on hover / approach
-  btnNope.addEventListener('mouseenter', dodge);
-  btnNope.addEventListener('mousemove', dodge);
-  // and if clicked, it still runs
-  btnNope.addEventListener('click', (e)=>{ e.preventDefault(); dodge(); });
+  /***********************
+   * Optional sound (WebAudio) — only after user gesture
+   ***********************/
+  let audioCtx = null;
+  function ensureAudio(){
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  }
+  function beep(freq=440, dur=0.08, gain=0.04){
+    if (!audioCtx) return;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'sine';
+    o.frequency.value = freq;
+    g.gain.value = gain;
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start();
+    o.stop(audioCtx.currentTime + dur);
+  }
+  function thump(){
+    // quick low beep
+    beep(110, 0.10, 0.05);
+  }
+  function clicky(){
+    beep(880, 0.03, 0.02);
+  }
 
-  // mobile: tapping makes it jump
-  btnNope.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    dodge();
-  }, { passive: false });
+  /***********************
+   * Nope button — default visible, then roam on interaction
+   ***********************/
+  let roaming = false;
+  function dodgeWholeScreen(){
+    const padding = 14;
 
-  window.addEventListener('resize', dodge);
+    // first dodge: convert to fixed at current location
+    if (!roaming) {
+      const r = btnNope.getBoundingClientRect();
+      btnNope.classList.add('roam');
+      btnNope.style.left = r.left + 'px';
+      btnNope.style.top  = r.top + 'px';
+      roaming = true;
+    }
 
-  // Reschedule UI
+    const btn = btnNope.getBoundingClientRect();
+    const maxX = Math.max(padding, window.innerWidth  - btn.width  - padding);
+    const maxY = Math.max(padding, window.innerHeight - btn.height - padding);
+
+    const x = Math.floor(Math.random() * (maxX - padding + 1)) + padding;
+    const y = Math.floor(Math.random() * (maxY - padding + 1)) + padding;
+
+    btnNope.style.left = x + 'px';
+    btnNope.style.top  = y + 'px';
+  }
+
+  btnNope.addEventListener('mouseenter', dodgeWholeScreen);
+  btnNope.addEventListener('mousemove', dodgeWholeScreen);
+  btnNope.addEventListener('click', (e)=>{ e.preventDefault(); dodgeWholeScreen(); });
+  btnNope.addEventListener('touchstart', (e)=>{ e.preventDefault(); dodgeWholeScreen(); }, { passive:false });
+  window.addEventListener('resize', () => { if (roaming) dodgeWholeScreen(); });
+
+  /***********************
+   * Reschedule UI
+   ***********************/
   rangeDays.addEventListener('input', () => {
     chipDays.textContent = `${rangeDays.value} day${rangeDays.value === '1' ? '' : 's'}`;
+    // tiny tactile click if sound is enabled
+    clicky();
   });
 
   btnResched.addEventListener('click', () => {
+    ensureAudio(); // user gesture -> unlock audio if allowed
     reschedBox.classList.toggle('hidden');
     showTerminal();
     addLine('> RESCHEDULE MODULE: LOADED', 'ok');
     addLine('> Awaiting input…', 'warn');
+    pulseFlash();
+    shakePanel();
   });
 
+  function formatLocalDateTime(d){
+    // "Apr 2 — 8:17 PM"
+    const mo = d.toLocaleString(undefined, { month: 'short' });
+    const day = d.getDate();
+    const time = d.toLocaleString(undefined, { hour: 'numeric', minute: '2-digit' });
+    return `${mo} ${day} — ${time}`;
+  }
+
   btnConfirm.addEventListener('click', async () => {
+    ensureAudio();
+
     const days = parseInt(rangeDays.value, 10);
 
-    // ADDED: notify with slider value
+    // notify with slider value
     notifyMe(`She pressed: "I still need more time" — slider set to ${days} day(s)`);
 
+    // cinematic standby shift
+    setState('standby');
+    pulseFlash();
+    shakePanel();
+    thump();
+
     showTerminal();
-    addLine('> SUBMITTING REQUEST…');
-    await sleep(420);
+    addLine('> Delay request received.', 'warn');
+    await sleep(360);
+    addLine('> Validating parameter…', '');
+    await sleep(380);
+
+    if (days === 45){
+      addLine('> Maximum allowed deferral selected.', 'warn');
+      await sleep(380);
+      addLine('> Constraint honored.', 'ok');
+      await sleep(380);
+    }
+
     addLine(`> Requested check-in window: ${days} day(s)`, 'warn');
     await sleep(420);
     addLine('> Validating constraints…', '');
@@ -525,9 +819,23 @@ function dodge(){
     if (days >= 1 && days <= 45) {
       addLine('> Constraint check: PASS (≤ 45 days)', 'ok');
       await sleep(420);
+
+      // timeline projection overlay
+      const when = new Date();
+      when.setDate(when.getDate() + days);
+      showOverlay('NEXT CHECK-IN SCHEDULED', '✓', formatLocalDateTime(when));
+      fireStreak();
+      pulseFlash();
+      await sleep(900);
+      hideOverlay();
+
       addLine('> TIMELINE CONFIRMED.', 'ok');
       popConfetti();
       await sleep(300);
+      addLine('> Space granted.', 'ok');
+      await sleep(280);
+      addLine('> Word honored.', 'ok');
+      await sleep(380);
       addLine('> System returning to standby.', '');
     } else {
       addLine('> Constraint check: FAIL', 'err');
@@ -535,25 +843,74 @@ function dodge(){
     }
   });
 
-  // Proceed
+  /***********************
+   * Call / Proceed — cinematic countdown + handshake
+   ***********************/
   btnProceed.addEventListener('click', async () => {
-    // ADDED: notify on call request
+    ensureAudio();
+
+    // notify
     notifyMe('She pressed: "Call me tonight"');
 
+    // lock buttons for drama
+    btnProceed.disabled = true;
+    btnResched.disabled = true;
+
+    // Active state shift
+    setState('active');
+    pulseFlash();
+    shakePanel();
+    thump();
+
     showTerminal();
-    addLine('> INITIATING CALL PROTOCOL…');
+    addLine('> INITIATING CONNECTION PROTOCOL…');
+    await sleep(380);
+    addLine('> Authenticating…', '');
     await sleep(420);
+
+    // countdown overlay
+    showOverlay('CONNECTION PROTOCOL', 3, 'Authenticating…');
+    beep(440, 0.08, 0.05);
+    pulseFlash();
+    await sleep(520);
+
+    countNum.textContent = '2';
+    beep(520, 0.08, 0.05);
+    pulseFlash();
+    await sleep(520);
+
+    countNum.textContent = '1';
+    beep(660, 0.08, 0.05);
+    pulseFlash();
+    await sleep(520);
+
+    hideOverlay();
+
+    // handshake streak
+    fireStreak();
+    pulseFlash();
+    await sleep(240);
+
     addLine('> Opening secure channel…', '');
-    await sleep(600);
+    await sleep(540);
     addLine('> Verifying handshake…', '');
-    await sleep(700);
-    addLine('> Call approved. Standing by.', 'ok');
+    await sleep(600);
+    addLine('> Handshake verified.', 'ok');
+    await sleep(320);
+    addLine('> Channel authorized.', 'ok');
+    await sleep(420);
+    addLine('> Connection approved. Standing by.', 'ok');
+
     popConfetti();
+
+    // allow resched again if you want (or keep locked)
+    // btnResched.disabled = false;
   });
 
   function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
 
-  // Put "Nope" somewhere not boring at first load
+  // Start idle
+  setState('idle');
 </script>
 </body>
 </html>
