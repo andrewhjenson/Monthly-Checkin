@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Check-In</title>
+  <title>One month has passed…</title>
   <style>
-    :root {
-      --bg1: #0b1020;
-      --bg2: #1a1030;
+    :root{
+      --bg1:#0b1020;
+      --bg2:#1a1030;
       --card: rgba(255,255,255,0.08);
       --card2: rgba(255,255,255,0.12);
       --text: rgba(255,255,255,0.92);
@@ -17,215 +17,209 @@
       --radius: 18px;
     }
 
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body {
-      margin: 0;
-      color: var(--text);
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      color:var(--text);
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      background: radial-gradient(1200px 800px at 20% 10%, #2c2a7a 0%, transparent 60%),
-                  radial-gradient(900px 700px at 80% 30%, #7a2a6c 0%, transparent 55%),
-                  linear-gradient(135deg, var(--bg1), var(--bg2));
-      overflow-x: hidden;
+      background:
+        radial-gradient(1200px 800px at 20% 10%, #2c2a7a 0%, transparent 60%),
+        radial-gradient(900px 700px at 80% 30%, #7a2a6c 0%, transparent 55%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
     }
 
-    .wrap {
-      min-height: 100%;
-      display: grid;
-      place-items: center;
-      padding: 28px 16px;
+    .wrap{
+      min-height:100%;
+      display:grid;
+      place-items:center;
+      padding:28px 16px;
     }
 
-    .card {
-      width: min(720px, 94vw);
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 26px;
+    .card{
+      width:min(760px, 94vw);
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:26px;
       backdrop-filter: blur(10px);
     }
 
-    .title {
-      font-size: 30px;
-      line-height: 1.15;
-      margin: 0 0 10px;
-      letter-spacing: -0.02em;
+    .title{
+      font-size:34px;
+      line-height:1.12;
+      margin:0 0 10px;
+      letter-spacing:-0.02em;
     }
 
-    .subtitle {
-      margin: 0 0 22px;
-      color: var(--muted);
-      font-size: 16px;
-      line-height: 1.45;
+    .subtitle{
+      margin:0 0 18px;
+      color:var(--muted);
+      font-size:16px;
+      line-height:1.55;
+      max-width: 62ch;
     }
 
-    .row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 18px;
-      align-items: center;
+    .panel{
+      margin-top:18px;
+      padding:16px;
+      border-radius:16px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.06);
     }
 
-    button {
-      border: 1px solid var(--border);
-      background: var(--card2);
-      color: var(--text);
-      padding: 12px 16px;
-      border-radius: 14px;
-      cursor: pointer;
-      font-weight: 650;
-      letter-spacing: 0.01em;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+    .label{
+      font-size:14px;
+      color:var(--muted);
+      margin:0 0 10px;
+      line-height:1.4;
+    }
+
+    .bigline{
+      font-size:18px;
+      margin:0 0 12px;
+      line-height:1.45;
+    }
+
+    .slider-row{
+      display:grid;
+      grid-template-columns: 1fr 128px;
+      gap:12px;
+      align-items:center;
+      margin-top:10px;
+    }
+
+    input[type="range"]{
+      width:100%;
+      accent-color:#b8a6ff;
+    }
+
+    input[type="number"]{
+      width:128px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.08);
+      color:var(--text);
+      font-weight:750;
+      outline:none;
+    }
+
+    .row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:16px;
+      align-items:center;
+    }
+
+    button{
+      border:1px solid var(--border);
+      background:var(--card2);
+      color:var(--text);
+      padding:12px 16px;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:700;
+      letter-spacing:0.01em;
+      box-shadow:0 10px 24px rgba(0,0,0,0.25);
       transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
-      user-select: none;
+      user-select:none;
       touch-action: manipulation;
     }
-    button:hover { transform: translateY(-1px); border-color: rgba(255,255,255,0.28); }
-    button:active { transform: translateY(0px) scale(0.99); }
+    button:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,0.28); }
+    button:active{ transform: translateY(0px) scale(0.99); }
 
-    .primary { background: rgba(120,255,200,0.18); }
-    .secondary { background: rgba(180,160,255,0.18); }
+    .primary{ background: rgba(120,255,200,0.18); }
+    .secondary{ background: rgba(180,160,255,0.18); }
 
-    .tiny {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 14px;
-      line-height: 1.4;
-    }
-
-    /* Modal */
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      display: none;
-      place-items: center;
-      padding: 18px;
-      background: rgba(0,0,0,0.55);
-      z-index: 9998;
-    }
-    .modal {
-      width: min(620px, 96vw);
-      background: rgba(20, 16, 40, 0.88);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 20px;
-      backdrop-filter: blur(12px);
-    }
-    .modal h2 {
-      margin: 0 0 8px;
-      font-size: 22px;
-      letter-spacing: -0.02em;
-    }
-    .modal p {
-      margin: 0 0 16px;
-      color: var(--muted);
-      line-height: 1.45;
+    .tiny{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:14px;
+      line-height:1.45;
     }
 
-    .slider-row {
-      display: grid;
-      grid-template-columns: 1fr 120px;
-      gap: 12px;
-      align-items: center;
-      margin: 12px 0 6px;
-    }
-
-    input[type="range"] {
-      width: 100%;
-      accent-color: #b8a6ff;
-    }
-    input[type="number"] {
-      width: 120px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.08);
-      color: var(--text);
-      font-weight: 700;
-      outline: none;
-    }
-
-    .modal-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: flex-end;
-      margin-top: 14px;
-    }
-
-    /* Nope button: roams the entire screen */
-    #nopeBtn {
-      position: fixed;
-      left: 40px;
-      top: 80px;
-      z-index: 9999;
-      transition: left 120ms ease, top 120ms ease;
+    /* Nope button roams the whole screen */
+    #nopeBtn{
+      position:fixed;
+      left:40px;
+      top:80px;
+      z-index:9999;
+      transition:left 120ms ease, top 120ms ease;
       background: rgba(255,120,120,0.14);
     }
 
-    /* Optional: small confetti-ish sparkle */
-    .sparkle {
-      display: inline-block;
+    .done {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.06);
+      color: var(--muted);
+      display: none;
+      line-height: 1.45;
+    }
+    .done strong { color: var(--text); }
+
+    .sparkle{
+      display:inline-block;
       filter: drop-shadow(0 8px 18px rgba(0,0,0,0.45));
       animation: floaty 2.4s ease-in-out infinite;
     }
-    @keyframes floaty {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-3px); }
+    @keyframes floaty{
+      0%,100%{ transform: translateY(0); }
+      50%{ transform: translateY(-3px); }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
-      <h1 class="title"><span class="sparkle">✨</span> Quick check-in</h1>
+      <h1 class="title"><span class="sparkle">✨</span> One month has passed…</h1>
+
       <p class="subtitle">
-        If you’re up for it, we can talk tonight. If you still need time, just tell me how long.
+        I kept my word and gave you space.
+        <br/>
+        If you’re ready, I’d like to talk tonight.
+        If you still need time, tell me how long — and I’ll honor it.
       </p>
+
+      <div class="panel">
+        <p class="label">If you need more time:</p>
+        <p class="bigline">
+          Check back in in <strong><span id="daysLabel">30</span></strong> days.
+          <span style="color: var(--muted)">(max 45)</span>
+        </p>
+
+        <div class="slider-row">
+          <input id="daysSlider" type="range" min="1" max="45" value="30"/>
+          <input id="daysInput" type="number" min="1" max="45" value="30"/>
+        </div>
+      </div>
 
       <div class="row">
         <button id="callBtn" class="primary">Call me tonight</button>
         <button id="moreTimeBtn" class="secondary">I still need more time</button>
       </div>
 
+      <div id="doneBox" class="done"></div>
+
       <p class="tiny">
-        (Yes, there’s also a “Nope” button somewhere… good luck 😄)
+        (There’s also a “Nope” button somewhere… it’s not cooperative.)
       </p>
     </div>
   </div>
 
-  <!-- The roaming Nope button -->
   <button id="nopeBtn">Nope</button>
-
-  <!-- Modal for “more time” -->
-  <div id="backdrop" class="modal-backdrop">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <h2 id="modalTitle">Okay — how many days?</h2>
-      <p>
-        Check back in in <b><span id="daysLabel">30</span></b> days.
-        (Max 45.)
-      </p>
-
-      <div class="slider-row">
-        <input id="daysSlider" type="range" min="1" max="45" value="30" />
-        <input id="daysInput" type="number" min="1" max="45" value="30" />
-      </div>
-
-      <div class="modal-actions">
-        <button id="cancelBtn">Cancel</button>
-        <button id="confirmBtn" class="secondary">Confirm</button>
-      </div>
-    </div>
-  </div>
 
   <script>
     /***********************
      * CONFIG: NTFY
      ***********************/
-    const NTFY_TOPIC = "c47fa29e91b-alx"; // <-- your new topic
+    const NTFY_TOPIC = "c47fa29e91b-alx";
     const NTFY_URL = `https://ntfy.sh/${NTFY_TOPIC}`;
 
     async function notifyMe(message) {
@@ -245,38 +239,25 @@
     }
 
     /***********************
-     * UI ELEMENTS
+     * ELEMENTS
      ***********************/
     const callBtn = document.getElementById("callBtn");
     const moreTimeBtn = document.getElementById("moreTimeBtn");
-
     const nopeBtn = document.getElementById("nopeBtn");
-
-    const backdrop = document.getElementById("backdrop");
-    const cancelBtn = document.getElementById("cancelBtn");
-    const confirmBtn = document.getElementById("confirmBtn");
 
     const daysSlider = document.getElementById("daysSlider");
     const daysInput = document.getElementById("daysInput");
     const daysLabel = document.getElementById("daysLabel");
 
+    const doneBox = document.getElementById("doneBox");
+
     let selectedDays = Number(daysSlider.value);
 
-    /***********************
-     * HELPERS
-     ***********************/
-    function clamp(n, min, max) {
+    function clamp(n, min, max){
       return Math.min(max, Math.max(min, n));
     }
 
-    function openModal() {
-      backdrop.style.display = "grid";
-    }
-    function closeModal() {
-      backdrop.style.display = "none";
-    }
-
-    function setDays(n) {
+    function setDays(n){
       const v = clamp(Number(n || 1), 1, 45);
       selectedDays = v;
       daysSlider.value = String(v);
@@ -284,18 +265,22 @@
       daysLabel.textContent = String(v);
     }
 
-    function randomNopePosition() {
-      const padding = 14;
+    function showDone(html){
+      doneBox.innerHTML = html;
+      doneBox.style.display = "block";
+    }
 
-      // Button dimensions (fallbacks if not measured yet)
+    /***********************
+     * NOPE MOVEMENT (whole screen)
+     ***********************/
+    function randomNopePosition(){
+      const padding = 14;
       const btnW = nopeBtn.offsetWidth || 120;
       const btnH = nopeBtn.offsetHeight || 44;
 
-      // Viewport
       const vw = window.innerWidth;
       const vh = window.innerHeight;
 
-      // Keep it on-screen
       const maxX = Math.max(padding, vw - btnW - padding);
       const maxY = Math.max(padding, vh - btnH - padding);
 
@@ -305,8 +290,8 @@
       return { x, y };
     }
 
-    function moveNope() {
-      const { x, y } = randomNopePosition();
+    function moveNope(){
+      const {x,y} = randomNopePosition();
       nopeBtn.style.left = `${x}px`;
       nopeBtn.style.top = `${y}px`;
     }
@@ -314,67 +299,46 @@
     /***********************
      * EVENTS
      ***********************/
-    // Main buttons
-    callBtn.addEventListener("click", () => {
-      notifyMe('She pressed: "Call me tonight"');
-      // Optional: give on-screen feedback
-      callBtn.textContent = "Got it ❤️";
-      callBtn.disabled = true;
-      moreTimeBtn.disabled = true;
-    });
-
-    moreTimeBtn.addEventListener("click", () => {
-      openModal();
-    });
-
-    // Modal controls
-    cancelBtn.addEventListener("click", closeModal);
-
-    confirmBtn.addEventListener("click", () => {
-      notifyMe(`She pressed: "I still need more time" — slider set to ${selectedDays} days`);
-      closeModal();
-      // Optional: on-screen feedback
-      moreTimeBtn.textContent = `Okay — ${selectedDays} days`;
-      moreTimeBtn.disabled = true;
-      callBtn.disabled = true;
-    });
-
-    // Clicking outside modal closes it
-    backdrop.addEventListener("click", (e) => {
-      if (e.target === backdrop) closeModal();
-    });
-
-    // Slider + input sync
+    // Sync slider + number input
     daysSlider.addEventListener("input", (e) => setDays(e.target.value));
     daysInput.addEventListener("input", (e) => setDays(e.target.value));
 
-    // Nope button runs away across the whole screen
-    // Desktop hover + move
+    // Buttons
+    callBtn.addEventListener("click", () => {
+      notifyMe('She pressed: "Call me tonight"');
+      callBtn.disabled = true;
+      moreTimeBtn.disabled = true;
+
+      showDone(`<strong>Received.</strong> “Call me tonight.”`);
+      callBtn.textContent = "Got it ❤️";
+    });
+
+    moreTimeBtn.addEventListener("click", () => {
+      notifyMe(`She pressed: "I still need more time" — slider set to ${selectedDays} days`);
+      callBtn.disabled = true;
+      moreTimeBtn.disabled = true;
+
+      showDone(`<strong>Received.</strong> “I still need more time.”<br/>Check back in: <strong>${selectedDays} days</strong>.`);
+      moreTimeBtn.textContent = `Okay — ${selectedDays} days`;
+    });
+
+    // Nope runs away
     nopeBtn.addEventListener("mouseenter", moveNope);
     nopeBtn.addEventListener("mousemove", moveNope);
+    nopeBtn.addEventListener("click", (e) => { e.preventDefault(); moveNope(); });
 
-    // Mobile: tapping it makes it jump away
+    // Mobile
     nopeBtn.addEventListener("touchstart", (e) => {
       e.preventDefault();
       moveNope();
-    }, { passive: false });
+    }, { passive:false });
 
-    // Clicking also makes it jump away (so it’s basically unclickable)
-    nopeBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      moveNope();
-    });
-
-    // Start it somewhere random on load
     window.addEventListener("load", () => {
       setDays(selectedDays);
       moveNope();
     });
 
-    // If viewport changes size, keep it valid
-    window.addEventListener("resize", () => {
-      moveNope();
-    });
+    window.addEventListener("resize", moveNope);
   </script>
 </body>
 </html>
