@@ -1,118 +1,499 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Monthly Check-In</title>
-<style>
-    body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        background-color: #0f172a;
-        color: #e2e8f0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-        text-align: center;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Monthly Check-In Protocol</title>
+  <style>
+    :root{
+      --bg:#070a12;
+      --panel: rgba(15, 23, 42, 0.68);
+      --text:#e2e8f0;
+      --muted: rgba(226,232,240,.7);
+      --accent:#38bdf8;
+      --accent2:#a78bfa;
+      --danger:#fb7185;
+      --ok:#34d399;
+      --border: rgba(148,163,184,.25);
     }
-    .container {
-        max-width: 420px;
-        padding: 30px;
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,system-ui,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 15% 20%, rgba(56,189,248,.18), transparent 60%),
+        radial-gradient(900px 600px at 85% 35%, rgba(167,139,250,.16), transparent 55%),
+        radial-gradient(700px 500px at 55% 85%, rgba(244,114,182,.10), transparent 60%),
+        linear-gradient(180deg, #050714, #070a12 55%, #05060c);
+      overflow:hidden;
     }
-    h1 {
-        font-size: 24px;
-        margin-bottom: 10px;
+
+    /* animated "grid" */
+    .grid {
+      position:fixed; inset:-40px;
+      background-image:
+        linear-gradient(to right, rgba(148,163,184,.08) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(148,163,184,.08) 1px, transparent 1px);
+      background-size: 70px 70px;
+      transform: perspective(900px) rotateX(55deg) translateY(120px);
+      filter: blur(.2px);
+      opacity:.35;
+      animation: drift 12s linear infinite;
+      pointer-events:none;
     }
-    p {
-        font-size: 15px;
-        opacity: 0.85;
-        margin-bottom: 30px;
+    @keyframes drift{
+      from{background-position:0 0}
+      to{background-position:0 280px}
     }
-    button {
-        width: 100%;
-        padding: 12px;
-        margin: 8px 0;
-        font-size: 14px;
-        border-radius: 6px;
-        border: none;
-        cursor: pointer;
-        transition: 0.2s ease;
+
+    /* scanlines */
+    .scanlines{
+      position:fixed; inset:0;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,.04),
+        rgba(255,255,255,.04) 1px,
+        transparent 2px,
+        transparent 6px
+      );
+      mix-blend-mode:overlay;
+      opacity:.25;
+      pointer-events:none;
+      animation: flicker 5s infinite;
     }
-    .primary {
-        background-color: #38bdf8;
-        color: #0f172a;
+    @keyframes flicker{
+      0%, 100% { opacity:.22 }
+      50% { opacity:.28 }
     }
-    .secondary {
-        background-color: #334155;
-        color: #e2e8f0;
+
+    /* floating dots */
+    .dots{
+      position:fixed; inset:0;
+      pointer-events:none;
     }
-    button:hover {
-        opacity: 0.85;
+    .dot{
+      position:absolute;
+      width:6px; height:6px; border-radius:50%;
+      background: rgba(56,189,248,.9);
+      box-shadow: 0 0 14px rgba(56,189,248,.55);
+      opacity:.7;
+      animation: floaty 10s ease-in-out infinite;
     }
-    .hidden {
-        display: none;
+    .dot.purple{
+      background: rgba(167,139,250,.9);
+      box-shadow: 0 0 14px rgba(167,139,250,.55);
     }
-    input {
-        width: 80px;
-        padding: 8px;
-        font-size: 14px;
-        text-align: center;
-        border-radius: 4px;
-        border: none;
-        margin-top: 10px;
+    @keyframes floaty{
+      0%,100% { transform: translate(0,0) }
+      50% { transform: translate(20px,-30px) }
     }
-    small {
-        display: block;
-        margin-top: 8px;
-        opacity: 0.6;
-        font-size: 12px;
+
+    .wrap{
+      width:min(520px, 92vw);
+      position:relative;
+      z-index:2;
     }
-</style>
+
+    .panel{
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px 18px 18px;
+      backdrop-filter: blur(14px);
+      box-shadow:
+        0 10px 30px rgba(0,0,0,.40),
+        0 0 0 1px rgba(56,189,248,.07) inset;
+      overflow:hidden;
+      position:relative;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      font-size:12px;
+      letter-spacing:.22em;
+      text-transform:uppercase;
+      color: rgba(226,232,240,.85);
+      padding: 8px 10px;
+      border: 1px solid rgba(148,163,184,.22);
+      border-radius: 999px;
+      background: rgba(2,6,23,.45);
+    }
+    .pulse{
+      width:10px; height:10px; border-radius:50%;
+      background: var(--ok);
+      box-shadow: 0 0 0 0 rgba(52,211,153,.5);
+      animation: pulse 1.6s infinite;
+    }
+    @keyframes pulse{
+      0% { box-shadow: 0 0 0 0 rgba(52,211,153,.5) }
+      70% { box-shadow: 0 0 0 10px rgba(52,211,153,0) }
+      100% { box-shadow: 0 0 0 0 rgba(52,211,153,0) }
+    }
+
+    h1{
+      margin:14px 0 4px;
+      font-size:26px;
+      letter-spacing:.02em;
+    }
+    .sub{
+      margin:0 0 16px;
+      color: var(--muted);
+      font-size:14px;
+      line-height:1.4;
+    }
+
+    .hr{
+      height:1px;
+      background: linear-gradient(90deg, transparent, rgba(56,189,248,.35), transparent);
+      margin: 14px 0 14px;
+      opacity:.9;
+    }
+
+    .btnRow{display:grid; gap:10px; margin-top:6px;}
+    button{
+      width:100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(148,163,184,.22);
+      background: rgba(2,6,23,.30);
+      color: var(--text);
+      font-size:14px;
+      cursor:pointer;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+      position:relative;
+      overflow:hidden;
+    }
+    button:hover{
+      transform: translateY(-1px);
+      border-color: rgba(56,189,248,.45);
+      background: rgba(2,6,23,.42);
+    }
+    .primary{
+      border-color: rgba(56,189,248,.45);
+      background: linear-gradient(135deg, rgba(56,189,248,.18), rgba(167,139,250,.10));
+    }
+    .secondary{
+      border-color: rgba(148,163,184,.22);
+    }
+
+    /* dodging nope button */
+    .nopeWrap{
+      margin-top: 8px;
+      position:relative;
+      height: 48px;
+    }
+    .nope{
+      position:absolute;
+      left: 0;
+      top: 0;
+      width: 160px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(251,113,133,.35);
+      background: rgba(251,113,133,.10);
+      color: rgba(255,255,255,.92);
+    }
+    .nope:hover{
+      border-color: rgba(251,113,133,.6);
+      background: rgba(251,113,133,.14);
+    }
+
+    .hidden{display:none !important;}
+
+    /* reschedule */
+    .reschedule{
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(148,163,184,.18);
+      background: rgba(2,6,23,.22);
+    }
+    .labelRow{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom: 10px;
+      color: rgba(226,232,240,.85);
+      font-size:13px;
+    }
+    .chip{
+      font-variant-numeric: tabular-nums;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(56,189,248,.25);
+      background: rgba(56,189,248,.10);
+      color: rgba(226,232,240,.92);
+      min-width: 82px;
+      text-align:center;
+    }
+    input[type="range"]{
+      width:100%;
+      accent-color: var(--accent);
+    }
+    .tiny{
+      margin-top:8px;
+      color: rgba(226,232,240,.55);
+      font-size:12px;
+    }
+
+    /* terminal output */
+    .terminal{
+      margin-top: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(148,163,184,.16);
+      background: rgba(2,6,23,.55);
+      padding: 12px 12px 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      color: rgba(226,232,240,.92);
+      max-height: 200px;
+      overflow:auto;
+      box-shadow: 0 0 0 1px rgba(56,189,248,.06) inset;
+    }
+    .line { opacity:.95 }
+    .ok { color: rgba(52,211,153,.95) }
+    .warn { color: rgba(251,191,36,.95) }
+    .err { color: rgba(251,113,133,.95) }
+
+    /* confetti */
+    .confetti{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index: 9;
+      overflow:hidden;
+    }
+    .piece{
+      position:absolute;
+      width:10px; height:14px;
+      opacity:.9;
+      transform: rotate(0deg);
+      animation: fall 1.35s linear forwards;
+    }
+    @keyframes fall{
+      to{
+        transform: translateY(110vh) rotate(420deg);
+        opacity: 0.9;
+      }
+    }
+
+    /* stamp */
+    .stamp{
+      position:absolute;
+      right:-40px;
+      top:18px;
+      transform: rotate(18deg);
+      border: 2px solid rgba(56,189,248,.35);
+      color: rgba(56,189,248,.7);
+      padding: 10px 22px;
+      border-radius: 12px;
+      font-weight: 700;
+      letter-spacing:.18em;
+      text-transform: uppercase;
+      background: rgba(2,6,23,.25);
+      box-shadow: 0 0 0 1px rgba(56,189,248,.10) inset;
+      user-select:none;
+    }
+
+    /* footer hint */
+    .foot{
+      margin-top: 10px;
+      text-align:center;
+      color: rgba(226,232,240,.45);
+      font-size: 12px;
+    }
+  </style>
 </head>
 <body>
+  <div class="grid"></div>
+  <div class="scanlines"></div>
 
-<div class="container">
-    <h1>Monthly Check-In</h1>
-    <p>One month has passed.<br>As promised, checking in.</p>
+  <div class="dots" id="dots"></div>
 
-    <button class="primary" onclick="proceed()">Proceed with call</button>
-    <button class="secondary" onclick="showReschedule()">Reschedule</button>
+  <div class="wrap">
+    <div class="panel">
+      <div class="stamp">Protocol</div>
 
-    <div id="rescheduleSection" class="hidden">
-        <p>Select new check-in window (max 45 days):</p>
-        <input type="number" id="daysInput" min="1" max="45" placeholder="1-45">
-        <small>System cap: 45 days.</small>
-        <button class="primary" onclick="confirmReschedule()">Confirm</button>
+      <div class="badge">
+        <span class="pulse"></span>
+        <span>CHECK-IN SYSTEM ONLINE</span>
+      </div>
+
+      <h1>Monthly Check-In</h1>
+      <p class="sub">One month has passed. As promised, checking in.</p>
+
+      <div class="hr"></div>
+
+      <div class="btnRow">
+        <button class="primary" id="btnProceed">Proceed with call</button>
+        <button class="secondary" id="btnResched">Reschedule</button>
+      </div>
+
+      <div class="nopeWrap" aria-label="Nope button area">
+        <button class="nope" id="btnNope">Nope</button>
+      </div>
+
+      <div class="reschedule hidden" id="reschedBox">
+        <div class="labelRow">
+          <div>Select new check-in window (max 45 days)</div>
+          <div class="chip" id="chipDays">30 days</div>
+        </div>
+        <input type="range" id="rangeDays" min="1" max="45" value="30" />
+        <div class="tiny">System cap: 45 days.</div>
+        <div class="btnRow" style="margin-top:12px;">
+          <button class="primary" id="btnConfirm">Confirm</button>
+        </div>
+      </div>
+
+      <div class="terminal hidden" id="terminal"></div>
+
+      <div class="foot">This system is mildly unnecessary.</div>
     </div>
+  </div>
 
-    <div id="responseMessage" class="hidden"></div>
-</div>
+  <div class="confetti" id="confetti"></div>
 
 <script>
-function proceed() {
-    document.getElementById("responseMessage").innerHTML =
-        "<p>Call approved.<br>Standing by.</p>";
-    document.getElementById("responseMessage").classList.remove("hidden");
-}
+  // Floating dots for "Marauder-map-ish" motion without needing a full map
+  (function initDots(){
+    const dotsEl = document.getElementById('dots');
+    const make = (x,y,cls)=> {
+      const d = document.createElement('div');
+      d.className = 'dot ' + (cls||'');
+      d.style.left = x + '%';
+      d.style.top = y + '%';
+      d.style.animationDelay = (Math.random()*2) + 's';
+      d.style.animationDuration = (8 + Math.random()*6) + 's';
+      dotsEl.appendChild(d);
+    };
+    make(12,18,'');
+    make(26,70,'purple');
+    make(78,24,'');
+    make(84,78,'purple');
+    make(55,40,'');
+  })();
 
-function showReschedule() {
-    document.getElementById("rescheduleSection").classList.remove("hidden");
-}
+  const btnProceed = document.getElementById('btnProceed');
+  const btnResched = document.getElementById('btnResched');
+  const btnNope = document.getElementById('btnNope');
+  const reschedBox = document.getElementById('reschedBox');
+  const rangeDays = document.getElementById('rangeDays');
+  const chipDays = document.getElementById('chipDays');
+  const btnConfirm = document.getElementById('btnConfirm');
+  const terminal = document.getElementById('terminal');
+  const confetti = document.getElementById('confetti');
 
-function confirmReschedule() {
-    const days = document.getElementById("daysInput").value;
-    const message = document.getElementById("responseMessage");
+  // Terminal helpers
+  function showTerminal() {
+    terminal.classList.remove('hidden');
+    terminal.innerHTML = '';
+  }
+  function addLine(text, cls){
+    const div = document.createElement('div');
+    div.className = 'line' + (cls ? ' ' + cls : '');
+    div.textContent = text;
+    terminal.appendChild(div);
+    terminal.scrollTop = terminal.scrollHeight;
+  }
+
+  // Confetti
+  function popConfetti(){
+    confetti.innerHTML = '';
+    const colors = ['rgba(56,189,248,.95)','rgba(167,139,250,.95)','rgba(52,211,153,.95)','rgba(251,113,133,.95)','rgba(251,191,36,.95)'];
+    for(let i=0;i<60;i++){
+      const p = document.createElement('div');
+      p.className = 'piece';
+      p.style.left = (Math.random()*100) + 'vw';
+      p.style.top = (-10 - Math.random()*30) + 'vh';
+      p.style.background = colors[Math.floor(Math.random()*colors.length)];
+      p.style.animationDelay = (Math.random()*0.15) + 's';
+      p.style.transform = `rotate(${Math.random()*180}deg)`;
+      p.style.borderRadius = (Math.random()>.5 ? '2px' : '999px');
+      confetti.appendChild(p);
+    }
+    setTimeout(()=> confetti.innerHTML = '', 1700);
+  }
+
+  // Dodge "Nope" button
+  function dodge(){
+    const area = btnNope.parentElement.getBoundingClientRect();
+    const btn = btnNope.getBoundingClientRect();
+    const maxX = area.width - btn.width;
+    const maxY = area.height - btn.height;
+
+    // random new spot within area
+    const x = Math.max(0, Math.min(maxX, Math.random()*maxX));
+    const y = Math.max(0, Math.min(maxY, Math.random()*maxY));
+
+    btnNope.style.left = x + 'px';
+    btnNope.style.top  = y + 'px';
+  }
+  // move on hover / approach
+  btnNope.addEventListener('mouseenter', dodge);
+  btnNope.addEventListener('mousemove', dodge);
+  // and if clicked, it still runs
+  btnNope.addEventListener('click', (e)=>{ e.preventDefault(); dodge(); });
+
+  // Reschedule UI
+  rangeDays.addEventListener('input', () => {
+    chipDays.textContent = `${rangeDays.value} day${rangeDays.value === '1' ? '' : 's'}`;
+  });
+
+  btnResched.addEventListener('click', () => {
+    reschedBox.classList.toggle('hidden');
+    showTerminal();
+    addLine('> RESCHEDULE MODULE: LOADED', 'ok');
+    addLine('> Awaiting input…', 'warn');
+  });
+
+  btnConfirm.addEventListener('click', async () => {
+    const days = parseInt(rangeDays.value, 10);
+    showTerminal();
+    addLine('> SUBMITTING REQUEST…');
+    await sleep(420);
+    addLine(`> Requested check-in window: ${days} day(s)`, 'warn');
+    await sleep(420);
+    addLine('> Validating constraints…', '');
+    await sleep(420);
 
     if (days >= 1 && days <= 45) {
-        message.innerHTML = `<p>Confirmed.<br>Check-in scheduled in ${days} day(s).</p>`;
+      addLine('> Constraint check: PASS (≤ 45 days)', 'ok');
+      await sleep(420);
+      addLine('> TIMELINE CONFIRMED.', 'ok');
+      popConfetti();
+      await sleep(300);
+      addLine('> System returning to standby.', '');
     } else {
-        message.innerHTML = "<p>Please select a number between 1 and 45.</p>";
+      addLine('> Constraint check: FAIL', 'err');
+      addLine('> Please select 1–45.', 'err');
     }
+  });
 
-    message.classList.remove("hidden");
-}
+  // Proceed
+  btnProceed.addEventListener('click', async () => {
+    showTerminal();
+    addLine('> INITIATING CALL PROTOCOL…');
+    await sleep(420);
+    addLine('> Opening secure channel…', '');
+    await sleep(600);
+    addLine('> Verifying handshake…', '');
+    await sleep(700);
+    addLine('> Call approved. Standing by.', 'ok');
+    popConfetti();
+  });
+
+  function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+  // Put "Nope" somewhere not boring at first load
+  dodge();
 </script>
-
 </body>
 </html>
