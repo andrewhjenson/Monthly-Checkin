@@ -189,19 +189,23 @@
       height: 48px;
     }
     .nope{
-      /* CHANGED: roam the whole screen */
-      position: fixed;
-      left: 18px;
-      top: 18px;
-      width: 160px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(251,113,133,.35);
-      background: rgba(251,113,133,.10);
-      color: rgba(255,255,255,.92);
-      z-index: 9999;
-      transition: left .12s ease, top .12s ease;
-    }
+  position:absolute;          /* default: inside the Nope area */
+  left: 0;
+  top: 0;
+  width: 160px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(251,113,133,.35);
+  background: rgba(251,113,133,.10);
+  color: rgba(255,255,255,.92);
+}
+
+/* when it starts running, it becomes fixed + floats above everything */
+.nope.roam{
+  position: fixed;
+  z-index: 9999;
+  transition: left .12s ease, top .12s ease;
+}
     .nope:hover{
       border-color: rgba(251,113,133,.6);
       background: rgba(251,113,133,.14);
