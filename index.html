@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monthly Check-In</title>
+<style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background-color: #0f172a;
+        color: #e2e8f0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        text-align: center;
+    }
+    .container {
+        max-width: 420px;
+        padding: 30px;
+    }
+    h1 {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+    p {
+        font-size: 15px;
+        opacity: 0.85;
+        margin-bottom: 30px;
+    }
+    button {
+        width: 100%;
+        padding: 12px;
+        margin: 8px 0;
+        font-size: 14px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+    .primary {
+        background-color: #38bdf8;
+        color: #0f172a;
+    }
+    .secondary {
+        background-color: #334155;
+        color: #e2e8f0;
+    }
+    button:hover {
+        opacity: 0.85;
+    }
+    .hidden {
+        display: none;
+    }
+    input {
+        width: 80px;
+        padding: 8px;
+        font-size: 14px;
+        text-align: center;
+        border-radius: 4px;
+        border: none;
+        margin-top: 10px;
+    }
+    small {
+        display: block;
+        margin-top: 8px;
+        opacity: 0.6;
+        font-size: 12px;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Monthly Check-In</h1>
+    <p>One month has passed.<br>As promised, checking in.</p>
+
+    <button class="primary" onclick="proceed()">Proceed with call</button>
+    <button class="secondary" onclick="showReschedule()">Reschedule</button>
+
+    <div id="rescheduleSection" class="hidden">
+        <p>Select new check-in window (max 45 days):</p>
+        <input type="number" id="daysInput" min="1" max="45" placeholder="1-45">
+        <small>System cap: 45 days.</small>
+        <button class="primary" onclick="confirmReschedule()">Confirm</button>
+    </div>
+
+    <div id="responseMessage" class="hidden"></div>
+</div>
+
+<script>
+function proceed() {
+    document.getElementById("responseMessage").innerHTML =
+        "<p>Call approved.<br>Standing by.</p>";
+    document.getElementById("responseMessage").classList.remove("hidden");
+}
+
+function showReschedule() {
+    document.getElementById("rescheduleSection").classList.remove("hidden");
+}
+
+function confirmReschedule() {
+    const days = document.getElementById("daysInput").value;
+    const message = document.getElementById("responseMessage");
+
+    if (days >= 1 && days <= 45) {
+        message.innerHTML = `<p>Confirmed.<br>Check-in scheduled in ${days} day(s).</p>`;
+    } else {
+        message.innerHTML = "<p>Please select a number between 1 and 45.</p>";
+    }
+
+    message.classList.remove("hidden");
+}
+</script>
+
+</body>
+</html>
