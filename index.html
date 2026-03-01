@@ -456,19 +456,31 @@
   /***********************
    * Dodge "Nope" button (CHANGED: whole screen)
    ***********************/
-  function dodge(){
-    const padding = 14;
-    const btn = btnNope.getBoundingClientRect();
+ let roaming = false;
 
-    const maxX = Math.max(padding, window.innerWidth - btn.width - padding);
-    const maxY = Math.max(padding, window.innerHeight - btn.height - padding);
+function dodge(){
+  const padding = 14;
 
-    const x = Math.floor(Math.random() * (maxX - padding + 1)) + padding;
-    const y = Math.floor(Math.random() * (maxY - padding + 1)) + padding;
-
-    btnNope.style.left = x + 'px';
-    btnNope.style.top  = y + 'px';
+  // On first dodge, convert from absolute-in-box -> fixed-on-screen
+  if (!roaming) {
+    const r = btnNope.getBoundingClientRect();   // current on-screen location
+    btnNope.classList.add('roam');
+    btnNope.style.left = r.left + 'px';
+    btnNope.style.top  = r.top + 'px';
+    roaming = true;
   }
+
+  // Now roam anywhere in the viewport
+  const btn = btnNope.getBoundingClientRect();
+  const maxX = Math.max(padding, window.innerWidth  - btn.width  - padding);
+  const maxY = Math.max(padding, window.innerHeight - btn.height - padding);
+
+  const x = Math.floor(Math.random() * (maxX - padding + 1)) + padding;
+  const y = Math.floor(Math.random() * (maxY - padding + 1)) + padding;
+
+  btnNope.style.left = x + 'px';
+  btnNope.style.top  = y + 'px';
+}
 
   // move on hover / approach
   btnNope.addEventListener('mouseenter', dodge);
