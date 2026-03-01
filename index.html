@@ -849,14 +849,12 @@
       addLine('> Constraint check: PASS (≤ 45 days)', 'ok');
       await sleep(420);
 
-      // timeline projection overlay
-      const when = new Date();
-      when.setDate(when.getDate() + days);
-      showOverlay('NEXT CHECK-IN SCHEDULED', '✓', formatLocalDateTime(when));
-      fireStreak();
-      pulseFlash();
-      await sleep(900);
-      hideOverlay();
+     // timeline projection overlay
+showOverlay('NEXT CHECK-IN SCHEDULED', '✓', formatLocalDateTime(when));
+fireStreak();
+pulseFlash();
+await sleep(900);
+hideOverlay();
 
       addLine('> TIMELINE CONFIRMED.', 'ok');
       popConfetti();
