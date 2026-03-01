@@ -473,7 +473,7 @@
 
       <div class="btnRow">
         <button class="primary" id="btnProceed">Call me tonight</button>
-        <button class="secondary" id="btnResched">I still need more time</button>
+        <button class="secondary" id="btnResched">I need more time</button>
       </div>
 
       <div class="nopeWrap" aria-label="Nope button area">
@@ -763,7 +763,7 @@
     if (!ok) return;
 
     // notify only after she confirms
-    notifyMe(`She pressed: "I still need more time" — slider set to ${days} day(s)`);
+    notifyMe(`She pressed: "I need more time" — slider set to ${days} day(s)`);
 
     setState('standby');
     pulseFlash();
