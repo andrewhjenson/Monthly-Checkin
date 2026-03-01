@@ -755,13 +755,11 @@
       month: "long",
       day: "numeric",
       year: "numeric",
-      hour: "numeric",
-      minute: "2-digit"
     });
 
-    const ok = window.confirm(
-      `Confirm reschedule?\n\nNext check-in: ${fullDateTime}\n\n(Selected: ${days} day${days === 1 ? "" : "s"})`
-    );
+   const ok = window.confirm(
+  `Confirm reschedule?\n\nNext check-in date:\n${fullDateTime}\n\nProceed?`
+);
     if (!ok) return;
 
     // notify only after she confirms
