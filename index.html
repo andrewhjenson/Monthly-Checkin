@@ -785,12 +785,41 @@
   }
 
   btnConfirm.addEventListener('click', async () => {
-    ensureAudio();
+  ensureAudio();
 
-    const days = parseInt(rangeDays.value, 10);
+  const days = parseInt(rangeDays.value, 10);
 
-    // notify with slider value
-    notifyMe(`She pressed: "I still need more time" — slider set to ${days} day(s)`);
+  // Compute the actual check-in date/time
+  const when = new Date();
+  when.setDate(when.getDate() + days);
+
+  const fullDateTime = when.toLocaleString(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
+  });
+
+  const ok = window.confirm(
+    `Confirm reschedule?\n\nNext check-in: ${fullDateTime}\n\n(Selected: ${days} day${days === 1 ? "" : "s"})`
+  );
+
+  if (!ok) return;
+
+  // notify with slider value (only after she confirms)
+  notifyMe(`She pressed: "I still need more time" — slider set to ${days} day(s)`);
+
+  // cinematic standby shift
+  setState('standby');
+  pulseFlash();
+  shakePanel();
+  thump();
+
+  showTerminal();
+  addLine('> Delay request received.', 'warn');
+  ...
 
     // cinematic standby shift
     setState('standby');
